@@ -1,0 +1,58 @@
+
+
+syntax = "proto3";
+
+/**
+ * 生成的grpc.pb.go、pb.go 包名，两种调用方式：
+ * 导入文件夹目录后直接用routeguides.Point调用
+ * 文件夹目录别名pb，直接pb.Point调用
+ */
+
+/**
+ *1、两个文件位于同一个module文件目录下，从该module路径导入
+ *2、两个文件位于不同module文件目录下，从各自最近的module路径导入
+ *3、两个文件一个位于module下，一个不在module下，需要使用go mod init module_name，再使用方法2
+ */
+
+option go_package = "/routeguides";
+
+/**
+ * proto包名，导入proto文件，导入route_guide.Point
+ */
+package route_guide;
+
+service RouteGuide {
+  rpc GetFeature(Point) returns (Feature) {}
+  rpc ListFeatures(Rectangle) returns (stream Feature) {}
+  rpc RecordRoute(stream Point) returns (RouteSummary) {}
+  rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
+}
+
+message Point {
+  int32 latitude = 1;
+  int32 longitude = 2;
+}
+
+message Rectangle {
+  Point lo = 1;
+  Point hi = 2;
+}
+
+message Feature {
+  string name = 1;
+  Point location = 2;
+}
+
+message RouteNote {
+  Point location = 1;
+  string  message = 2;
+}
+
+message RouteSummary {
+  int32 point_count = 1;
+  int32 feature_count = 2;
+  int32 distance = 3;
+  int32 elapsed_time = 4;
+}
+
+//protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative routeguide.proto
